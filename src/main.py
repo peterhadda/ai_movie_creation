@@ -5,15 +5,23 @@ from typing import Any
 
 from src.analysis import generate_summary
 from src.cleaning import clean_dataset
+from src.evaluate import evaluate_model
 from src.features import prepare_ml_dataset
 from src.ingestion import load_raw_data
-from src.storage import save_as_csv, save_as_json, save_processing_report
+from src.model import predict_labels, save_model
+from src.storage import (
+    save_as_csv,
+    save_as_json,
+    save_evaluation_report,
+    save_processing_report,
+)
+from src.train import run_training_pipeline
 from src.transform import transform_dataset
 from src.utils import load_config, log_message
 from src.validation import validate_dataset
 
 
-def run_pipeline(config_path: str | Path = "config.json") -> dict[str, Any]:
+def _build_processed_records(config_path: str | Path) -> dict[str, Any]:
     config = load_config(config_path)
     log_message("Loading raw data")
     raw_records = load_raw_data(config["source_type"], config["source_path"])
@@ -63,8 +71,54 @@ def run_pipeline(config_path: str | Path = "config.json") -> dict[str, Any]:
     log_message(f"Saved processed JSON to {json_path}")
     log_message(f"Saved processing report to {report_path}")
     log_message(f"Pipeline complete. Usable records: {summary['total_records']}")
-    return report
+    return {
+        "config": config,
+        "processed_records": processed_records,
+        "ml_dataset": ml_dataset,
+        "processing_report": report,
+    }
+
+
+def run_ml_pipeline(config_path: str | Path = "config.json") -> dict[str, Any]:
+    pipeline_state = _build_processed_records(config_path)
+    config = pipeline_state["config"]
+
+    X = pipeline_state["ml_dataset"]["X"]
+    y = pipeline_state["ml_dataset"]["y"]
+
+    log_message("Training baseline model")
+    trained_model, X_test, y_test = run_training_pipeline(X, y)
+
+    log_message("Predicting test labels")
+    y_pred = predict_labels(trained_model, X_test)
+
+    log_message("Evaluating model")
+    evaluation_report = evaluate_model(trained_model, X_test, y_test)
+
+    model_output_path = config["output"].get("model", "data/processed/trained_model.pkl")
+    evaluation_output_path = config["output"].get(
+        "evaluation_report",
+        "data/processed/evaluation_report.json",
+    )
+
+    save_model(trained_model, model_output_path)
+    save_evaluation_report(evaluation_report, evaluation_output_path)
+
+    return {
+        "X": X,
+        "y": y,
+        "trained_model": trained_model,
+        "X_test": X_test,
+        "y_test": y_test,
+        "y_pred": y_pred,
+        "evaluation_report": evaluation_report,
+    }
+
+
+def run_pipeline(config_path: str | Path = "config.json") -> dict[str, Any]:
+    ml_pipeline_result = run_ml_pipeline(config_path)
+    return ml_pipeline_result
 
 
 if __name__ == "__main__":
-    run_pipeline()
+    run_ml_pipeline()

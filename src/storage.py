@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import json
+import pickle
 from pathlib import Path
 from typing import Any
 
@@ -35,4 +36,36 @@ def save_processing_report(report: dict[str, Any], output_path: str | Path) -> P
 
     with output.open("w", encoding="utf-8") as file:
         json.dump(report, file, indent=2)
+    return output
+
+
+def save_model_artifact(model: Any, output_path: str | Path) -> Path:
+    output = Path(output_path)
+    ensure_directory_exists(output.parent)
+
+    with output.open("wb") as file:
+        pickle.dump(model, file)
+    return output
+
+
+def load_model_artifact(model_path: str | Path) -> Any:
+    with Path(model_path).open("rb") as file:
+        return pickle.load(file)
+
+
+def save_evaluation_report(report: dict[str, Any], path: str | Path) -> Path:
+    output = Path(path)
+    ensure_directory_exists(output.parent)
+
+    with output.open("w", encoding="utf-8") as file:
+        json.dump(report, file, indent=2)
+    return output
+
+
+def save_predictions(predictions: list[Any], path: str | Path) -> Path:
+    output = Path(path)
+    ensure_directory_exists(output.parent)
+
+    with output.open("w", encoding="utf-8") as file:
+        json.dump(predictions, file, indent=2)
     return output

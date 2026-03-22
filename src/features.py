@@ -131,6 +131,8 @@ def prepare_ml_dataset(records: list[dict[str, Any]], config: dict[str, Any]) ->
         _print_feature_debug("TARGET VECTOR", target_vector)
 
     return {
+        "X": feature_matrix,
+        "y": target_vector,
         "feature_columns": feature_columns,
         "target_column": target_column,
         "feature_matrix": feature_matrix,

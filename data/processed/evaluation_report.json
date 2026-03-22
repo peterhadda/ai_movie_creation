@@ -1,0 +1,22 @@
+{
+  "accuracy_score": 0.0,
+  "precision_score": 0.0,
+  "recall_score": 0.0,
+  "f1_score": 0.0,
+  "confusion_matrix": [
+    [
+      0,
+      1
+    ],
+    [
+      0,
+      0
+    ]
+  ],
+  "y_true": [
+    "audio"
+  ],
+  "y_pred": [
+    "video"
+  ]
+}
