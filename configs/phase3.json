@@ -1,0 +1,18 @@
+{
+  "phase3": {
+    "data_dir": "data/raw/mnist",
+    "download": true,
+    "batch_size": 64,
+    "learning_rate": 0.001,
+    "num_epochs": 3,
+    "latent_dim": 32,
+    "train_ratio": 0.8,
+    "val_ratio": 0.1,
+    "test_ratio": 0.1,
+    "output": {
+      "model": "models/phase3/autoencoder_mnist.pt",
+      "training_history": "reports/phase3/training_history.json",
+      "reconstructions": "outputs/phase3/reconstructions.png"
+    }
+  }
+}
