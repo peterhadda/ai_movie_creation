@@ -78,6 +78,18 @@
   "output": {
     "csv": "data/processed/media_metadata_clean.csv",
     "json": "data/processed/media_metadata_clean.json",
-    "report": "data/processed/processing_report.json"
+    "report": "reports/processing_report.json",
+    "model": "models/trained_model.pt",
+    "evaluation_report": "reports/evaluation_report.json",
+    "training_history": "reports/training_history.json"
+  },
+  "training": {
+    "hidden_size": 16,
+    "learning_rate": 0.001,
+    "num_epochs": 20,
+    "batch_size": 4,
+    "train_ratio": 0.6,
+    "val_ratio": 0.2,
+    "test_ratio": 0.2
   }
 }

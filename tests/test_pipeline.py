@@ -5,7 +5,6 @@ from pathlib import Path
 
 import torch
 
-from src.cleaning import clean_dataset
 from src.dataset import (
     convert_features_to_tensor,
     convert_target_to_tensor,
@@ -19,7 +18,7 @@ from src.evaluate import (
     evaluate_model,
     generate_evaluation_report,
 )
-from src.features import build_feature_matrix, prepare_ml_dataset
+from src.features import build_feature_matrix, prepare_ml_dataset, transform_dataset
 from src.main import run_ml_pipeline
 from src.model import (
     initialize_network,
@@ -37,8 +36,7 @@ from src.train import (
     train_one_epoch,
     validate_one_epoch,
 )
-from src.transform import transform_dataset
-from src.validation import validate_dataset
+from src.utils import clean_dataset, validate_dataset
 
 
 class PipelineTests(unittest.TestCase):
@@ -91,10 +89,10 @@ class PipelineTests(unittest.TestCase):
             "output": {
                 "csv": "data/processed/test_media_metadata_clean.csv",
                 "json": "data/processed/test_media_metadata_clean.json",
-                "report": "data/processed/test_processing_report.json",
-                "model": "data/processed/test_trained_model.pt",
-                "evaluation_report": "data/processed/test_evaluation_report.json",
-                "training_history": "data/processed/test_training_history.json",
+                "report": "reports/test_processing_report.json",
+                "model": "models/test_trained_model.pt",
+                "evaluation_report": "reports/test_evaluation_report.json",
+                "training_history": "reports/test_training_history.json",
             },
         }
         self.training_X = [
@@ -267,12 +265,12 @@ class PipelineTests(unittest.TestCase):
                 "test_ratio": 0.25,
             }
             config["output"] = {
-                "csv": str(temp_dir_path / "processed.csv"),
-                "json": str(temp_dir_path / "processed.json"),
-                "report": str(temp_dir_path / "processing_report.json"),
-                "model": str(temp_dir_path / "trained_model.pt"),
-                "evaluation_report": str(temp_dir_path / "evaluation_report.json"),
-                "training_history": str(temp_dir_path / "training_history.json"),
+                "csv": str(temp_dir_path / "data" / "processed" / "processed.csv"),
+                "json": str(temp_dir_path / "data" / "processed" / "processed.json"),
+                "report": str(temp_dir_path / "reports" / "processing_report.json"),
+                "model": str(temp_dir_path / "models" / "trained_model.pt"),
+                "evaluation_report": str(temp_dir_path / "reports" / "evaluation_report.json"),
+                "training_history": str(temp_dir_path / "reports" / "training_history.json"),
             }
 
             config_path = temp_dir_path / "config.json"
@@ -283,9 +281,9 @@ class PipelineTests(unittest.TestCase):
             self.assertIn("X_tensor", result)
             self.assertIn("training_history", result)
             self.assertIn("evaluation_report", result)
-            self.assertTrue((temp_dir_path / "trained_model.pt").exists())
-            self.assertTrue((temp_dir_path / "evaluation_report.json").exists())
-            self.assertTrue((temp_dir_path / "training_history.json").exists())
+            self.assertTrue((temp_dir_path / "models" / "trained_model.pt").exists())
+            self.assertTrue((temp_dir_path / "reports" / "evaluation_report.json").exists())
+            self.assertTrue((temp_dir_path / "reports" / "training_history.json").exists())
 
 
 if __name__ == "__main__":
