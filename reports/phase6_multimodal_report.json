@@ -1,0 +1,11 @@
+{
+  "text_input": "A dog running in the snow",
+  "image_output": "outputs\\phase6\\generated_image.png",
+  "audio_output": "outputs\\phase6\\generated_audio.wav",
+  "video_output": "outputs\\phase6\\generated_video.gif",
+  "alignment_scores": {
+    "image": 0.9999999403953552,
+    "audio": 0.9999999403953552,
+    "video": 0.9999999403953552
+  }
+}

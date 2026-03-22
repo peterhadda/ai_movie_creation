@@ -1,17 +1,17 @@
-# Media DL Pipeline
+# Media AI Pipeline
 
-This project is a tabular deep learning pipeline for media-type classification. It loads raw media metadata, validates and cleans it, engineers structured features, converts them into tensors, trains a feedforward neural network with PyTorch, evaluates the model, and saves the resulting artifacts.
+This repository is organized by phase so each learning track stays isolated:
 
-The current target is `category` / media type classification such as:
+- Phase 2: tabular deep learning for media-type classification
+- Phase 3: image generation with an MNIST autoencoder
+- Phase 4: audio generation with waveform, spectrogram, and sequence modeling foundations
 
-- `image`
-- `audio`
-- `video`
+Shared helpers live in `src/common`, while each phase has its own package, entrypoint, config, and tests.
 
 ## Structure
 
 ```text
-media_dl_pipeline/
+ai_movie_creation/
 |-- data/
 |   |-- raw/
 |   |-- processed/
@@ -19,21 +19,48 @@ media_dl_pipeline/
 |-- models/
 |-- reports/
 |-- src/
-|   |-- dataset.py
-|   |-- evaluate.py
-|   |-- features.py
-|   |-- main.py
-|   |-- model.py
-|   |-- predict.py
-|   |-- train.py
-|   `-- utils.py
+|   |-- common/
+|   |   `-- utils.py
+|   |-- phase2/
+|   |   |-- dataset.py
+|   |   |-- evaluate.py
+|   |   |-- features.py
+|   |   |-- main.py
+|   |   |-- model.py
+|   |   |-- predict.py
+|   |   `-- train.py
+|   |-- phase3/
+|   |   |-- autoencoder.py
+|   |   |-- dataset.py
+|   |   |-- main.py
+|   |   `-- train.py
+|   |-- phase4/
+|   |   |-- data.py
+|   |   |-- generate.py
+|   |   |-- main.py
+|   |   |-- model.py
+|   |   `-- train.py
+|   `-- ...
 |-- tests/
+|   |-- phase2/
+|   |-- phase3/
+|   `-- phase4/
 |-- config.json
+|-- config_phase3.json
+|-- config_phase4.json
 |-- main.py
+|-- main_phase3.py
+|-- main_phase4.py
 `-- requirements.txt
 ```
 
-## Pipeline Flow
+## Entry Points
+
+- [main.py](/C:/Users/Aymen/Desktop/ai_movie_creation/main.py): runs the Phase 2 tabular pipeline
+- [main_phase3.py](/C:/Users/Aymen/Desktop/ai_movie_creation/main_phase3.py): runs the Phase 3 image autoencoder pipeline
+- [main_phase4.py](/C:/Users/Aymen/Desktop/ai_movie_creation/main_phase4.py): runs the Phase 4 audio generation pipeline
+
+## Phase 2 Flow
 
 ```text
 raw records
@@ -50,33 +77,27 @@ raw records
   -> saved model and reports
 ```
 
-## Modules
+## Phase Packages
 
-- [src/utils.py](/C:/Users/Aymen/Desktop/ai_movie_creation/src/utils.py): data loading, validation, cleaning, summary generation, and file saving helpers
-- [src/features.py](/C:/Users/Aymen/Desktop/ai_movie_creation/src/features.py): transformation, feature encoding, scaling, and target encoding
-- [src/dataset.py](/C:/Users/Aymen/Desktop/ai_movie_creation/src/dataset.py): tensor conversion, dataset creation, splitting, and dataloaders
-- [src/model.py](/C:/Users/Aymen/Desktop/ai_movie_creation/src/model.py): feedforward PyTorch network, prediction helpers, save/load
-- [src/train.py](/C:/Users/Aymen/Desktop/ai_movie_creation/src/train.py): loss, optimizer, batch training, epoch training, validation, full training loop
-- [src/evaluate.py](/C:/Users/Aymen/Desktop/ai_movie_creation/src/evaluate.py): test evaluation, accuracy, confusion matrix, evaluation report
-- [src/predict.py](/C:/Users/Aymen/Desktop/ai_movie_creation/src/predict.py): single-sample and batch prediction
-- [src/main.py](/C:/Users/Aymen/Desktop/ai_movie_creation/src/main.py): end-to-end pipeline entrypoint
+- [src/common/utils.py](/C:/Users/Aymen/Desktop/ai_movie_creation/src/common/utils.py): shared loading, cleaning, reporting, and save helpers
+- [src/phase2](/C:/Users/Aymen/Desktop/ai_movie_creation/src/phase2): structured-data deep learning pipeline
+- [src/phase3](/C:/Users/Aymen/Desktop/ai_movie_creation/src/phase3): image-generation starter built around an autoencoder
+- [src/phase4](/C:/Users/Aymen/Desktop/ai_movie_creation/src/phase4): audio-generation starter with spectrogram and sequence modeling
 
 ## Outputs
 
-By default the pipeline writes:
+By default the project writes:
 
-- processed CSV to `data/processed/`
-- processed JSON to `data/processed/`
-- trained model to `models/`
-- processing and evaluation reports to `reports/`
-- training history to `reports/`
-
-All output paths and training settings are configurable in [config.json](/C:/Users/Aymen/Desktop/ai_movie_creation/config.json).
+- processed tabular data to `data/processed/`
+- trained models to `models/`
+- reports, histories, reconstructions, and generated audio to `reports/`
 
 ## Run
 
 ```bash
 python main.py
+python main_phase3.py
+python main_phase4.py
 ```
 
 ## Test
@@ -87,5 +108,6 @@ python -m unittest discover -s tests
 
 ## Notes
 
-- The included sample dataset is useful for pipeline development, but it is too small for meaningful deep learning performance.
-- For serious Phase 2 training, use a larger and more balanced dataset with at least a few hundred rows.
+- Phase 2 uses the sample media metadata file and is mainly for pipeline structure, not model quality.
+- Phase 3 uses MNIST and saves reconstruction samples.
+- Phase 4 supports real `.wav` files from `data/raw/audio/`, but falls back to synthetic sine waves if that folder is empty.

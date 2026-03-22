@@ -1,4 +1,4 @@
-from src.main import run_ml_pipeline
+from src.phase2.main import run_ml_pipeline
 
 
 if __name__ == "__main__":

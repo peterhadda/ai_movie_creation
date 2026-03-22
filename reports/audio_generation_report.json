@@ -1,0 +1,8 @@
+{
+  "sample_rate": 16000,
+  "waveform_count": 12,
+  "train_sequences": 991,
+  "val_sequences": 212,
+  "test_sequences": 213,
+  "generated_audio_path": "reports\\generated_audio.wav"
+}

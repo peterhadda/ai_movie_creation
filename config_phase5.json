@@ -1,0 +1,26 @@
+{
+  "phase5": {
+    "video_path": "data/raw/video/sample.gif",
+    "frame_size": [32, 32],
+    "fps": 8,
+    "sequence_length": 4,
+    "hidden_size": 128,
+    "learning_rate": 0.001,
+    "num_epochs": 3,
+    "batch_size": 4,
+    "train_ratio": 0.7,
+    "val_ratio": 0.15,
+    "test_ratio": 0.15,
+    "generated_future_frames": 6,
+    "synthetic_frame_count": 20,
+    "square_size": 8,
+    "step_size": 2,
+    "output": {
+      "frames_dir": "outputs/phase5/frames",
+      "model": "models/video_prediction_model.pt",
+      "training_history": "reports/video_training_history.json",
+      "report": "reports/video_evaluation_report.json",
+      "generated_video": "outputs/phase5/generated_video.gif"
+    }
+  }
+}
