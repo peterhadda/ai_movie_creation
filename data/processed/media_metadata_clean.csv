@@ -1,0 +1,5 @@
+file_name,format,duration_seconds,width,height,size_bytes,category,created_date
+trailer_a.mp4,MP4,120.5,1920,1080,1572864,video,2026-03-01
+theme_song.wav,wav,215.0,0,0,2097152,audio,2026-03-02
+trailer_a.mp4,mp4,120.5,1920,1080,1572864,video,2026-03-01
+behind_scenes.json,json,45.0,0,0,524288,metadata,2026-03-08

@@ -1,0 +1,46 @@
+{
+  "raw_rows": 6,
+  "valid_rows": 4,
+  "invalid_rows": 2,
+  "validation_issues": {
+    "missing required field: format": 1,
+    "duration: expected float": 1
+  },
+  "duplicates_removed": 0,
+  "missing_values_handled": {},
+  "summary": {
+    "total_records": 4,
+    "missing_values": {},
+    "statistics": {
+      "duration_seconds": {
+        "min": 45.0,
+        "max": 215.0,
+        "mean": 125.25,
+        "median": 120.5
+      },
+      "width": {
+        "min": 0,
+        "max": 1920,
+        "mean": 960,
+        "median": 960.0
+      },
+      "height": {
+        "min": 0,
+        "max": 1080,
+        "mean": 540,
+        "median": 540.0
+      },
+      "size_bytes": {
+        "min": 524288,
+        "max": 2097152,
+        "mean": 1441792,
+        "median": 1572864.0
+      }
+    },
+    "category_counts": {
+      "video": 2,
+      "audio": 1,
+      "metadata": 1
+    }
+  }
+}

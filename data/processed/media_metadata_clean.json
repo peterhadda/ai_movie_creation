@@ -1,0 +1,42 @@
+[
+  {
+    "file_name": "trailer_a.mp4",
+    "format": "MP4",
+    "duration_seconds": 120.5,
+    "width": 1920,
+    "height": 1080,
+    "size_bytes": 1572864,
+    "category": "video",
+    "created_date": "2026-03-01"
+  },
+  {
+    "file_name": "theme_song.wav",
+    "format": "wav",
+    "duration_seconds": 215.0,
+    "width": 0,
+    "height": 0,
+    "size_bytes": 2097152,
+    "category": "audio",
+    "created_date": "2026-03-02"
+  },
+  {
+    "file_name": "trailer_a.mp4",
+    "format": "mp4",
+    "duration_seconds": 120.5,
+    "width": 1920,
+    "height": 1080,
+    "size_bytes": 1572864,
+    "category": "video",
+    "created_date": "2026-03-01"
+  },
+  {
+    "file_name": "behind_scenes.json",
+    "format": "json",
+    "duration_seconds": 45.0,
+    "width": 0,
+    "height": 0,
+    "size_bytes": 524288,
+    "category": "metadata",
+    "created_date": "2026-03-08"
+  }
+]
