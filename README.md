@@ -2,6 +2,8 @@
 
 This project is a Phase 0 data-engineering exercise. It ingests raw media metadata, validates it, cleans it, transforms it into a consistent schema, stores the processed output, and generates a simple inspection report.
 
+It also includes a first feature-engineering step that converts processed records into an ML-ready feature matrix and target vector.
+
 ## Structure
 
 ```text
@@ -23,7 +25,8 @@ media_data_pipeline/
 3. Cleans duplicates, trims text, fills configured missing values, and standardizes dates.
 4. Converts media categories and units into a consistent format.
 5. Saves processed records as CSV and JSON.
-6. Writes a processing report with counts and summary statistics.
+6. Builds encoded and scaled model inputs from configured feature columns.
+7. Writes a processing report with counts, feature-prep metadata, and summary statistics.
 
 ## Run
 

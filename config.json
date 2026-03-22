@@ -51,6 +51,24 @@
     "category",
     "created_date"
   ],
+  "feature_columns": [
+    "format",
+    "duration_seconds",
+    "width",
+    "height",
+    "size_bytes"
+  ],
+  "categorical_feature_columns": [
+    "format"
+  ],
+  "numeric_feature_columns": [
+    "duration_seconds",
+    "width",
+    "height",
+    "size_bytes"
+  ],
+  "target_column": "category",
+  "debug_features": true,
   "numeric_summary_fields": [
     "duration_seconds",
     "width",

@@ -8,6 +8,44 @@
   },
   "duplicates_removed": 0,
   "missing_values_handled": {},
+  "ml_dataset": {
+    "feature_columns": [
+      "format",
+      "duration_seconds",
+      "width",
+      "height",
+      "size_bytes"
+    ],
+    "target_column": "category",
+    "feature_row_count": 4,
+    "target_count": 4,
+    "encoders": {
+      "format": {
+        "MP4": 0,
+        "json": 1,
+        "mp4": 2,
+        "wav": 3
+      }
+    },
+    "scalers": {
+      "duration_seconds": {
+        "min": 45.0,
+        "max": 215.0
+      },
+      "width": {
+        "min": 0.0,
+        "max": 1920.0
+      },
+      "height": {
+        "min": 0.0,
+        "max": 1080.0
+      },
+      "size_bytes": {
+        "min": 524288.0,
+        "max": 2097152.0
+      }
+    }
+  },
   "summary": {
     "total_records": 4,
     "missing_values": {},

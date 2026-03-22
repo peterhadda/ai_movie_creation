@@ -5,6 +5,7 @@ from typing import Any
 
 from src.analysis import generate_summary
 from src.cleaning import clean_dataset
+from src.features import prepare_ml_dataset
 from src.ingestion import load_raw_data
 from src.storage import save_as_csv, save_as_json, save_processing_report
 from src.transform import transform_dataset
@@ -30,6 +31,9 @@ def run_pipeline(config_path: str | Path = "config.json") -> dict[str, Any]:
     log_message("Transforming cleaned records")
     processed_records = transform_dataset(cleaned_records, config)
 
+    log_message("Preparing ML dataset")
+    ml_dataset = prepare_ml_dataset(processed_records, config)
+
     log_message("Generating summary")
     summary = generate_summary(processed_records, config)
 
@@ -40,6 +44,14 @@ def run_pipeline(config_path: str | Path = "config.json") -> dict[str, Any]:
         "validation_issues": validation_result["issue_counts"],
         "duplicates_removed": cleaning_report["duplicates_removed"],
         "missing_values_handled": cleaning_report["missing_values_filled"],
+        "ml_dataset": {
+            "feature_columns": ml_dataset["feature_columns"],
+            "target_column": ml_dataset["target_column"],
+            "feature_row_count": len(ml_dataset["feature_matrix"]),
+            "target_count": len(ml_dataset["target_vector"]),
+            "encoders": ml_dataset["encoders"],
+            "scalers": ml_dataset["scalers"],
+        },
         "summary": summary,
     }
 
