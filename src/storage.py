@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import csv
 import json
-import pickle
 from pathlib import Path
 from typing import Any
+
+import torch
 
 from src.utils import ensure_directory_exists
 
@@ -43,14 +44,12 @@ def save_model_artifact(model: Any, output_path: str | Path) -> Path:
     output = Path(output_path)
     ensure_directory_exists(output.parent)
 
-    with output.open("wb") as file:
-        pickle.dump(model, file)
+    torch.save(model, output)
     return output
 
 
 def load_model_artifact(model_path: str | Path) -> Any:
-    with Path(model_path).open("rb") as file:
-        return pickle.load(file)
+    return torch.load(Path(model_path), map_location="cpu")
 
 
 def save_evaluation_report(report: dict[str, Any], path: str | Path) -> Path:
@@ -68,4 +67,13 @@ def save_predictions(predictions: list[Any], path: str | Path) -> Path:
 
     with output.open("w", encoding="utf-8") as file:
         json.dump(predictions, file, indent=2)
+    return output
+
+
+def save_training_history(training_history: list[dict[str, float]], history_path: str | Path) -> Path:
+    output = Path(history_path)
+    ensure_directory_exists(output.parent)
+
+    with output.open("w", encoding="utf-8") as file:
+        json.dump(training_history, file, indent=2)
     return output

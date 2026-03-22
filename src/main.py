@@ -5,17 +5,25 @@ from typing import Any
 
 from src.analysis import generate_summary
 from src.cleaning import clean_dataset
-from src.evaluate import evaluate_model
+from src.dataset import (
+    convert_features_to_tensor,
+    convert_target_to_tensor,
+    create_data_loader,
+    create_tensor_dataset,
+    split_dataset,
+)
+from src.evaluate import evaluate_model, generate_evaluation_report
 from src.features import prepare_ml_dataset
 from src.ingestion import load_raw_data
-from src.model import predict_labels, save_model
+from src.model import initialize_network, save_model
 from src.storage import (
     save_as_csv,
     save_as_json,
     save_evaluation_report,
     save_processing_report,
+    save_training_history,
 )
-from src.train import run_training_pipeline
+from src.train import initialize_loss_function, initialize_optimizer, run_training_loop
 from src.transform import transform_dataset
 from src.utils import load_config, log_message
 from src.validation import validate_dataset
@@ -85,31 +93,89 @@ def run_ml_pipeline(config_path: str | Path = "config.json") -> dict[str, Any]:
 
     X = pipeline_state["ml_dataset"]["X"]
     y = pipeline_state["ml_dataset"]["y"]
+    target_decoder = pipeline_state["ml_dataset"]["target_decoder"]
 
-    log_message("Training baseline model")
-    trained_model, X_test, y_test = run_training_pipeline(X, y)
+    training_config = config.get("training", {})
+    hidden_size = training_config.get("hidden_size", 16)
+    learning_rate = training_config.get("learning_rate", 0.001)
+    num_epochs = training_config.get("num_epochs", 20)
+    batch_size = training_config.get("batch_size", 4)
+    train_ratio = training_config.get("train_ratio", 0.6)
+    val_ratio = training_config.get("val_ratio", 0.2)
+    test_ratio = training_config.get("test_ratio", 0.2)
 
-    log_message("Predicting test labels")
-    y_pred = predict_labels(trained_model, X_test)
+    log_message("Converting features and targets to tensors")
+    X_tensor = convert_features_to_tensor(X)
+    y_tensor = convert_target_to_tensor(y)
+
+    log_message("Creating datasets and loaders")
+    dataset = create_tensor_dataset(X_tensor, y_tensor)
+    train_dataset, val_dataset, test_dataset = split_dataset(
+        dataset,
+        train_ratio=train_ratio,
+        val_ratio=val_ratio,
+        test_ratio=test_ratio,
+    )
+    train_loader = create_data_loader(train_dataset, batch_size=batch_size, shuffle=True)
+    val_loader = create_data_loader(val_dataset, batch_size=batch_size, shuffle=False)
+    test_loader = create_data_loader(test_dataset, batch_size=batch_size, shuffle=False)
+
+    log_message("Initializing neural network")
+    input_size = len(X[0]) if X else 0
+    output_size = len(target_decoder)
+    model = initialize_network(input_size, hidden_size, output_size)
+    loss_fn = initialize_loss_function("classification")
+    optimizer = initialize_optimizer(model, learning_rate)
+
+    log_message("Training neural network")
+    trained_model, training_history = run_training_loop(
+        model,
+        train_loader,
+        val_loader,
+        loss_fn,
+        optimizer,
+        num_epochs,
+    )
 
     log_message("Evaluating model")
-    evaluation_report = evaluate_model(trained_model, X_test, y_test)
+    test_loss, test_accuracy, y_true, y_pred = evaluate_model(
+        trained_model,
+        test_loader,
+        loss_fn,
+    )
+    evaluation_report = generate_evaluation_report(test_loss, test_accuracy, y_true, y_pred)
+    evaluation_report["label_mapping"] = {
+        "target_decoder": {str(key): value for key, value in target_decoder.items()}
+    }
 
     model_output_path = config["output"].get("model", "data/processed/trained_model.pkl")
     evaluation_output_path = config["output"].get(
         "evaluation_report",
         "data/processed/evaluation_report.json",
     )
+    history_output_path = config["output"].get(
+        "training_history",
+        "data/processed/training_history.json",
+    )
 
     save_model(trained_model, model_output_path)
     save_evaluation_report(evaluation_report, evaluation_output_path)
+    save_training_history(training_history, history_output_path)
 
     return {
         "X": X,
         "y": y,
+        "X_tensor": X_tensor,
+        "y_tensor": y_tensor,
+        "train_dataset": train_dataset,
+        "val_dataset": val_dataset,
+        "test_dataset": test_dataset,
+        "train_loader": train_loader,
+        "val_loader": val_loader,
+        "test_loader": test_loader,
         "trained_model": trained_model,
-        "X_test": X_test,
-        "y_test": y_test,
+        "training_history": training_history,
+        "y_test": y_true,
         "y_pred": y_pred,
         "evaluation_report": evaluation_report,
     }

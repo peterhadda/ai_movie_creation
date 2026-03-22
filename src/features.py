@@ -102,6 +102,14 @@ def build_target_vector(records: list[dict[str, Any]], target_column: str) -> li
     return select_target_column(records, target_column)
 
 
+def encode_target_labels(target_values: list[Any]) -> tuple[list[int], dict[str, int], dict[int, str]]:
+    categories = sorted({str(target_value) for target_value in target_values})
+    target_encoder = {category: index for index, category in enumerate(categories)}
+    target_decoder = {index: category for category, index in target_encoder.items()}
+    y_encoded = [target_encoder[str(target_value)] for target_value in target_values]
+    return y_encoded, target_encoder, target_decoder
+
+
 def prepare_ml_dataset(records: list[dict[str, Any]], config: dict[str, Any]) -> dict[str, Any]:
     feature_columns = config.get("feature_columns", [])
     categorical_columns = config.get("categorical_feature_columns", [])
@@ -117,6 +125,7 @@ def prepare_ml_dataset(records: list[dict[str, Any]], config: dict[str, Any]) ->
         [record.get(column) for column in feature_columns] for record in scaled_records
     ]
     target_vector = build_target_vector(records, target_column) if target_column else []
+    y_encoded, target_encoder, target_decoder = encode_target_labels(target_vector)
 
     if debug_features:
         _print_feature_debug("PROCESSED RECORDS", records)
@@ -129,14 +138,18 @@ def prepare_ml_dataset(records: list[dict[str, Any]], config: dict[str, Any]) ->
         _print_feature_debug("SCALERS", scalers)
         _print_feature_debug("FEATURE MATRIX", feature_matrix)
         _print_feature_debug("TARGET VECTOR", target_vector)
+        _print_feature_debug("ENCODED TARGET VECTOR", y_encoded)
 
     return {
         "X": feature_matrix,
-        "y": target_vector,
+        "y": y_encoded,
+        "y_raw": target_vector,
         "feature_columns": feature_columns,
         "target_column": target_column,
         "feature_matrix": feature_matrix,
         "target_vector": target_vector,
+        "target_encoder": target_encoder,
+        "target_decoder": target_decoder,
         "encoders": encoders,
         "scalers": scalers,
     }

@@ -1,36 +1,23 @@
 from __future__ import annotations
 
-from typing import Any
+import torch
+from torch import nn
 
-from src.model import predict_labels
-
-new_record: list[Any] | dict[str, Any] | None = None
-predictions: list[Any] = []
-
-
-def _normalize_records(records: list[list[Any]] | list[dict[str, Any]]) -> list[list[Any]]:
-    if not records:
-        return []
-    if isinstance(records[0], dict):
-        return [list(record.values()) for record in records]
-    return records
+new_record: torch.Tensor | None = None
+predictions: list[int] = []
 
 
-def predict_single_record(model: Any, record: list[Any] | dict[str, Any]) -> Any:
-    normalized_record = [list(record.values())] if isinstance(record, dict) else [record]
-    prediction = predict_labels(model, normalized_record)[0]
+def predict_single_sample(model: nn.Module, sample_tensor: torch.Tensor) -> int:
+    model.eval()
+    with torch.no_grad():
+        outputs = model(sample_tensor.unsqueeze(0))
+        prediction = int(torch.argmax(outputs, dim=1).item())
     return prediction
 
 
-def predict_batch(model: Any, records: list[list[Any]] | list[dict[str, Any]]) -> list[Any]:
-    normalized_records = _normalize_records(records)
-    predictions = predict_labels(model, normalized_records)
+def predict_batch(model: nn.Module, batch_tensor: torch.Tensor) -> list[int]:
+    model.eval()
+    with torch.no_grad():
+        outputs = model(batch_tensor)
+        predictions = torch.argmax(outputs, dim=1).tolist()
     return predictions
-
-
-def format_prediction_output(predictions: list[Any]) -> list[dict[str, Any]]:
-    formatted_predictions = [
-        {"record_index": index, "prediction": prediction}
-        for index, prediction in enumerate(predictions)
-    ]
-    return formatted_predictions

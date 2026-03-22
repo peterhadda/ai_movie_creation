@@ -2,43 +2,62 @@ from __future__ import annotations
 
 from typing import Any
 
-from sklearn.metrics import accuracy_score, confusion_matrix, f1_score, precision_score, recall_score
+import torch
+from sklearn.metrics import confusion_matrix
+from torch import nn
+from torch.utils.data import DataLoader
 
-from src.model import predict_labels
-
-y_true: list[Any] = []
-y_pred: list[Any] = []
-
-
-def compute_accuracy(y_true: list[Any], y_pred: list[Any]) -> float:
-    return float(accuracy_score(y_true, y_pred))
+y_true: list[int] = []
+y_pred: list[int] = []
 
 
-def compute_precision(y_true: list[Any], y_pred: list[Any]) -> float:
-    return float(precision_score(y_true, y_pred, average="weighted", zero_division=0))
+def compute_accuracy(y_true: list[int], y_pred: list[int]) -> float:
+    if not y_true:
+        return 0.0
+    matches = sum(int(expected == predicted) for expected, predicted in zip(y_true, y_pred))
+    return matches / len(y_true)
 
 
-def compute_recall(y_true: list[Any], y_pred: list[Any]) -> float:
-    return float(recall_score(y_true, y_pred, average="weighted", zero_division=0))
-
-
-def compute_f1_score(y_true: list[Any], y_pred: list[Any]) -> float:
-    return float(f1_score(y_true, y_pred, average="weighted", zero_division=0))
-
-
-def build_confusion_matrix(y_true: list[Any], y_pred: list[Any]) -> list[list[int]]:
+def build_confusion_matrix(y_true: list[int], y_pred: list[int]) -> list[list[int]]:
     return confusion_matrix(y_true, y_pred).tolist()
 
 
-def evaluate_model(model: Any, X_test: list[list[Any]], y_test: list[Any]) -> dict[str, Any]:
-    y_pred = predict_labels(model, X_test)
+def evaluate_model(
+    model: nn.Module,
+    test_loader: DataLoader[Any],
+    loss_fn: nn.Module,
+) -> tuple[float, float, list[int], list[int]]:
+    model.eval()
+    total_loss = 0.0
+    y_true: list[int] = []
+    y_pred: list[int] = []
+
+    with torch.no_grad():
+        for batch_X, batch_y in test_loader:
+            outputs = model(batch_X)
+            loss = loss_fn(outputs, batch_y)
+            total_loss += float(loss.item())
+
+            predictions = torch.argmax(outputs, dim=1)
+            y_true.extend(batch_y.tolist())
+            y_pred.extend(predictions.tolist())
+
+    test_loss = total_loss / max(len(test_loader), 1)
+    test_accuracy = compute_accuracy(y_true, y_pred)
+    return float(test_loss), float(test_accuracy), y_true, y_pred
+
+
+def generate_evaluation_report(
+    test_loss: float,
+    test_accuracy: float,
+    y_true: list[int],
+    y_pred: list[int],
+) -> dict[str, Any]:
     evaluation_report = {
-        "accuracy_score": compute_accuracy(y_test, y_pred),
-        "precision_score": compute_precision(y_test, y_pred),
-        "recall_score": compute_recall(y_test, y_pred),
-        "f1_score": compute_f1_score(y_test, y_pred),
-        "confusion_matrix": build_confusion_matrix(y_test, y_pred),
-        "y_true": y_test,
+        "test_loss": test_loss,
+        "test_accuracy": test_accuracy,
+        "confusion_matrix": build_confusion_matrix(y_true, y_pred),
+        "y_true": y_true,
         "y_pred": y_pred,
     }
     return evaluation_report
